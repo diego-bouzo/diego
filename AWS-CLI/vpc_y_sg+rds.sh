@@ -221,8 +221,8 @@ sudo chmod 400 /home/ubuntu/.ssh/${KEY_NAME}.pem
 sudo chown ubuntu:ubuntu /home/ubuntu/.ssh/${KEY_NAME}.pem
 
 # Copiar A prosody, para configurarlo en ambas instancias del cluster
-sudo scp -i "/home/ubuntu/.ssh/${KEY_NAME}.pem" -r /etc/letsencrypt/live/srestrepoj-prosody.duckdns.org ubuntu@10.203.3.20:/home/ubuntu
-sudo scp -i "/home/ubuntu/.ssh/${KEY_NAME}.pem" -r /etc/letsencrypt/live/srestrepoj-prosody.duckdns.org ubuntu@10.203.3.30:/home/ubuntu
+sudo scp -i "/home/ubuntu/.ssh/${KEY_NAME}.pem" -r /etc/letsencrypt/live/prosodydiego.duckdns.org ubuntu@10.203.3.20:/home/ubuntu
+sudo scp -i "/home/ubuntu/.ssh/${KEY_NAME}.pem" -r /etc/letsencrypt/live/prosodydiego.duckdns.org ubuntu@10.203.3.30:/home/ubuntu
 
 EOF
 )
@@ -260,8 +260,8 @@ sudo chmod 400 /home/ubuntu/.ssh/${KEY_NAME}.pem
 sudo chown ubuntu:ubuntu /home/ubuntu/.ssh/${KEY_NAME}.pem
 
 # Copiar A wordpress, para configurarlo, en ambas instancias del cluster
-sudo scp -i "/home/ubuntu/.ssh/${KEY_NAME}.pem" -r /etc/letsencrypt/live/srestrepoj-wordpress.duckdns.org ubuntu@10.203.4.10:/home/ubuntu
-sudo scp -i "/home/ubuntu/.ssh/${KEY_NAME}.pem" -r /etc/letsencrypt/live/srestrepoj-wordpress.duckdns.org ubuntu@10.203.4.11:/home/ubuntu
+sudo scp -i "/home/ubuntu/.ssh/${KEY_NAME}.pem" -r /etc/letsencrypt/live/wordpressdiego.duckdns.org ubuntu@10.203.4.10:/home/ubuntu
+sudo scp -i "/home/ubuntu/.ssh/${KEY_NAME}.pem" -r /etc/letsencrypt/live/wordpressdiego.duckdns.org ubuntu@10.203.4.11:/home/ubuntu
 EOF
 )
 
@@ -368,8 +368,8 @@ echo "Configurando Prosody..." | tee -a $LOG_FILE
 sudo tee /etc/prosody/prosody.cfg.lua > /dev/null <<EOL
 -- Prosody Configuration
 
-VirtualHost "srestrepoj-prosody.duckdns.org"
-admins = { "admin@srestrepoj-prosody.duckdns.org" }
+VirtualHost "prosodydiego.duckdns.org"
+admins = { "admin@prosodydiego.duckdns.org" }
 
 modules_enabled = {
     "roster";
@@ -415,10 +415,10 @@ echo "Reiniciando Prosody..." | tee -a $LOG_FILE
 sudo systemctl restart prosody
 
 # Crear usuario administrador
-echo "Creando usuario admin@srestrepoj-prosody.duckdns.org..." | tee -a $LOG_FILE
-sudo prosodyctl register admin srestrepoj-prosody.duckdns.org "Admin123"
+echo "Creando usuario admin@prosodydiego.duckdns.org..." | tee -a $LOG_FILE
+sudo prosodyctl register admin prosodydiego.duckdns.org "Admin123"
 
-echo "Prosody instalado y configurado con éxito en srestrepoj-prosody.duckdns.org" | tee -a $LOG_FILE
+echo "Prosody instalado y configurado con éxito en prosodydiego.duckdns.org" | tee -a $LOG_FILE
 EOF
 )
  INSTANCE_ID=$(aws ec2 run-instances \
@@ -476,8 +476,8 @@ echo "Configurando Prosody..." | tee -a $LOG_FILE
 sudo tee /etc/prosody/prosody.cfg.lua > /dev/null <<EOL
 -- Prosody Configuration
 
-VirtualHost "srestrepoj-prosody.duckdns.org"
-admins = { "admin@srestrepoj-prosody.duckdns.org" }
+VirtualHost "prosodydiego.duckdns.org"
+admins = { "admin@prosodydiego.duckdns.org" }
 
 modules_enabled = {
     "roster";
@@ -523,10 +523,10 @@ echo "Reiniciando Prosody..." | tee -a $LOG_FILE
 sudo systemctl restart prosody
 
 # Crear usuario administrador
-echo "Creando usuario admin@srestrepoj-prosody.duckdns.org..." | tee -a $LOG_FILE
-sudo prosodyctl register admin srestrepoj-prosody.duckdns.org "Admin123"
+echo "Creando usuario admin@prosodydiego.duckdns.org..." | tee -a $LOG_FILE
+sudo prosodyctl register admin prosodydiego.duckdns.org "Admin123"
 
-echo "Prosody instalado y configurado con éxito en srestrepoj-prosody.duckdns.org" | tee -a $LOG_FILE
+echo "Prosody instalado y configurado con éxito en prosodydiego.duckdns.org" | tee -a $LOG_FILE
 EOF
 )
  INSTANCE_ID=$(aws ec2 run-instances \
@@ -558,10 +558,10 @@ USER_DATA_SCRIPT=$(cat <<EOF
 
 # Variables
 WP_PATH="/var/www/html"
-WP_URL="https://srestrepoj-wordpress.duckdns.org"
+WP_URL="https://wordpressdiego.duckdns.org"
 ROLE_NAME="cliente_soporte"
-SSL_CERT="/etc/apache2/ssl/srestrepoj-wordpress.duckdns.org/fullchain.pem"
-SSL_KEY="/etc/apache2/ssl/srestrepoj-wordpress.duckdns.org/privkey.pem"
+SSL_CERT="/etc/apache2/ssl/wordpressdiego.duckdns.org/fullchain.pem"
+SSL_KEY="/etc/apache2/ssl/wordpressdiego.duckdns.org/privkey.pem"
 LOG_FILE="/var/log/wp_install.log"
 # Funcion para registrar mensajes
 log() {
@@ -647,8 +647,8 @@ wp role add_cap "$ROLE_NAME" "view_own_ticket" --path=/var/www/html
 log "Configurando Apache para WordPress con SSL..."
 sudo bash -c "cat > /etc/apache2/sites-available/wordpress.conf <<APACHE
 <VirtualHost *:443>
-    ServerAdmin admin@srestrepoj-wordpress.duckdns.org
-    ServerName  srestrepoj-wordpress.duckdns.org
+    ServerAdmin admin@wordpressdiego.duckdns.org
+    ServerName  wordpressdiego.duckdns.org
 
     DocumentRoot /var/www/html
 
@@ -699,10 +699,10 @@ USER_DATA_SCRIPT=$(cat <<EOF
 
 # Variables
 WP_PATH="/var/www/html"
-WP_URL="https://srestrepoj-wordpress.duckdns.org"
+WP_URL="https://wordpressdiego.duckdns.org"
 ROLE_NAME="cliente_soporte"
-SSL_CERT="/etc/apache2/ssl/srestrepoj-wordpress.duckdns.org/fullchain.pem"
-SSL_KEY="/etc/apache2/ssl/srestrepoj-wordpress.duckdns.org/privkey.pem"
+SSL_CERT="/etc/apache2/ssl/wordpressdiego.duckdns.org/fullchain.pem"
+SSL_KEY="/etc/apache2/ssl/wordpressdiego.duckdns.org/privkey.pem"
 LOG_FILE="/var/log/wp_install.log"
 # Funcion para registrar mensajes
 log() {
@@ -788,8 +788,8 @@ wp role add_cap "$ROLE_NAME" "view_own_ticket" --path=/var/www/html
 log "Configurando Apache para WordPress con SSL..."
 sudo bash -c "cat > /etc/apache2/sites-available/wordpress.conf <<APACHE
 <VirtualHost *:443>
-    ServerAdmin admin@srestrepoj-wordpress.duckdns.org
-    ServerName  srestrepoj-wordpress.duckdns.org
+    ServerAdmin admin@wordpressdiego.duckdns.org
+    ServerName  wordpressdiego.duckdns.org
 
     DocumentRoot /var/www/html
 

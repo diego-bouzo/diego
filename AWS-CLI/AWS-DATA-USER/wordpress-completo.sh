@@ -5,10 +5,10 @@
 
 # Variables
 WP_PATH="/var/www/html"
-WP_URL="https://srestrepoj-wordpress.duckdns.org"
+WP_URL="https://wordpressdiego.duckdns.org"
 ROLE_NAME="cliente_soporte"
-SSL_CERT="/etc/apache2/ssl/srestrepoj-wordpress.duckdns.org/fullchain.pem"
-SSL_KEY="/etc/apache2/ssl/srestrepoj-wordpress.duckdns.org/privkey.pem"
+SSL_CERT="/etc/apache2/ssl/wordpressdiego.duckdns.org/fullchain.pem"
+SSL_KEY="/etc/apache2/ssl/wordpressdiego.duckdns.org/privkey.pem"
 LOG_FILE="/var/log/wp_install.log"
 # Funcion para registrar mensajes
 log() {
@@ -94,8 +94,8 @@ wp role add_cap "$ROLE_NAME" "view_own_ticket" --path=/var/www/html
 log "Configurando Apache para WordPress con SSL..."
 sudo bash -c "cat > /etc/apache2/sites-available/wordpress.conf <<APACHE
 <VirtualHost *:443>
-    ServerAdmin admin@srestrepoj-wordpress.duckdns.org
-    ServerName  srestrepoj-wordpress.duckdns.org
+    ServerAdmin admin@wordpressdiego.duckdns.org
+    ServerName  wordpressdiego.duckdns.org
 
     DocumentRoot /var/www/html
 

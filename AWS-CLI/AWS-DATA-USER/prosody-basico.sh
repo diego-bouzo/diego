@@ -35,8 +35,8 @@ echo "Configurando Prosody..." | tee -a $LOG_FILE
 sudo tee /etc/prosody/prosody.cfg.lua > /dev/null <<EOL
 -- Prosody Configuration
 
-VirtualHost "srestrepoj-prosody.duckdns.org"
-admins = { "admin@srestrepoj-prosody.duckdns.org" }
+VirtualHost "prosodydiego.duckdns.org"
+admins = { "admin@prosodydiego.duckdns.org" }
 
 modules_enabled = {
     "roster";
@@ -82,7 +82,7 @@ echo "Reiniciando Prosody..." | tee -a $LOG_FILE
 sudo systemctl restart prosody
 
 # Crear usuario administrador
-echo "Creando usuario admin@srestrepoj-prosody.duckdns.org..." | tee -a $LOG_FILE
-sudo prosodyctl register admin srestrepoj-prosody.duckdns.org "Admin123"
+echo "Creando usuario admin@prosodydiego.duckdns.org..." | tee -a $LOG_FILE
+sudo prosodyctl register admin prosodydiego.duckdns.org "Admin123"
 
-echo "Prosody instalado y configurado con éxito en srestrepoj-prosody.duckdns.org" | tee -a $LOG_FILE
+echo "Prosody instalado y configurado con éxito en prosodydiego.duckdns.org" | tee -a $LOG_FILE
