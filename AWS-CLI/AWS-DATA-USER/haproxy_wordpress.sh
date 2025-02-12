@@ -93,7 +93,8 @@ frontend wordpress_front
 
 backend wordpress_back
     mode http
-    balance roundrobin
+    balance source
+    server wordpress1 10.203.4.10:80 check
     server wordpress1 10.203.4.10:80 check
 EOL
 
