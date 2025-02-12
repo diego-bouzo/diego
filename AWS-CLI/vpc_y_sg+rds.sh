@@ -209,7 +209,7 @@ VOLUME_SIZE=8
 USER_DATA_SCRIPT=$(cat <<EOF
 #!/bin/bash
 # CAMBIAR LINK DE DESCARGA
-sudo curl -o /home/ubuntu/setup.sh https://raw.githubusercontent.com/srestrepoj01/mensagl/refs/heads/main/AWS-CLI/AWS-DATA-USER/haproxy_prosody.sh
+sudo curl -o /home/ubuntu/setup.sh https://raw.githubusercontent.com/diego-bouzo/diego/refs/heads/main/AWS-CLI/AWS-DATA-USER/haproxy_prosody.sh
 sudo chown ubuntu:ubuntu setup.sh
 sudo chmod +x /home/ubuntu/setup.sh
 sudo bash /home/ubuntu/setup.sh
@@ -248,7 +248,7 @@ VOLUME_SIZE=8
 USER_DATA_SCRIPT=$(cat <<EOF
 #!/bin/bash
 # CAMBIAR LINK DE DESCARGA
-sudo curl -o /home/ubuntu/setup.sh https://raw.githubusercontent.com/srestrepoj01/mensagl/refs/heads/main/AWS-CLI/AWS-DATA-USER/haproxy_wordpress.sh
+sudo curl -o /home/ubuntu/setup.sh https://raw.githubusercontent.com/diego-bouzo/diego/refs/heads/main/AWS-CLI/AWS-DATA-USER/haproxy_wordpress.sh
 sudo chown ubuntu:ubuntu setup.sh
 sudo chmod +x /home/ubuntu/setup.sh
 sudo bash /home/ubuntu/setup.sh
