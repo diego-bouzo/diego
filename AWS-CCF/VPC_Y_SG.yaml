@@ -1,0 +1,311 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Plantilla de CloudFormation para crear VPC, Subnets, Internet Gateway, NAT Gateway y Security Groups'
+
+Parameters:
+  NOMBRE_ALUMNO:
+    Type: String
+    Description: 'Nombre del laboratorio'
+  DB_NAME:
+    Type: String
+    Description: 'Nombre de la base de datos'
+  DB_USERNAME:
+    Type: String
+    Description: 'Nombre de usuario de la base de datos'
+  DB_PASSWORD:
+    Type: String
+    NoEcho: true
+    Description: 'Contraseña de la base de datos'
+
+Resources:
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: '10.203.0.0/16'
+      Tags:
+        - Key: Name
+          Value: !Sub 'vpc-mensagl-2025-${NOMBRE_ALUMNO}'
+  
+  SubnetPublic1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: '10.203.1.0/24'
+      AvailabilityZone: 'us-east-1a'
+  
+  SubnetPublic2:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: '10.203.2.0/24'
+      AvailabilityZone: 'us-east-1b'
+  
+  SubnetPrivate1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: '10.203.3.0/24'
+      AvailabilityZone: 'us-east-1a'
+  
+  SubnetPrivate2:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: '10.203.4.0/24'
+      AvailabilityZone: 'us-east-1b'
+  
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+  
+  AttachGateway:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+  
+  RouteTablePublic:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+  
+  PublicRoute:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref RouteTablePublic
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref InternetGateway
+  
+  SubnetRouteTableAssociation1:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetPublic1
+      RouteTableId: !Ref RouteTablePublic
+  
+  SubnetRouteTableAssociation2:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetPublic2
+      RouteTableId: !Ref RouteTablePublic
+  
+  ElasticIP:
+    Type: 'AWS::EC2::EIP'
+  
+  NatGateway:
+    Type: 'AWS::EC2::NatGateway'
+    Properties:
+      SubnetId: !Ref SubnetPublic1
+      AllocationId: !GetAtt ElasticIP.AllocationId
+  
+  RouteTablePrivate1:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+  
+  PrivateRoute1:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref RouteTablePrivate1
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref NatGateway
+  
+  SubnetRouteTableAssociation3:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetPrivate1
+      RouteTableId: !Ref RouteTablePrivate1
+  
+  RouteTablePrivate2:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+  
+  PrivateRoute2:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref RouteTablePrivate2
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref NatGateway
+  
+  SubnetRouteTableAssociation4:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetPrivate2
+      RouteTableId: !Ref RouteTablePrivate2
+  
+  SecurityGroupProxy:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupName: 'sg_proxy_inverso'
+      GroupDescription: 'SG para el proxy inverso'
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 8448
+          ToPort: 8448
+          CidrIp: '0.0.0.0/0'
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: '0.0.0.0/0'
+  
+  SecurityGroupCMS:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupName: 'sg_cms'
+      GroupDescription: 'SG para el cluster CMS'
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 33060
+          ToPort: 33060
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 53
+          ToPort: 53
+          CidrIp: '0.0.0.0/0'
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: '0.0.0.0/0'
+  
+  SecurityGroupMySQL:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupName: 'sg_mysql'
+      GroupDescription: 'SG para servidores MySQL'
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !Ref SecurityGroupMySQL
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: !GetAtt SubnetPrivate1.CidrBlock
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: '0.0.0.0/0'
+  
+  SecurityGroupMensajeria:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupName: 'sg_mensajeria'
+      GroupDescription: 'SG para XMPP Prosody y MySQL'
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5222
+          ToPort: 5222
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 5347
+          ToPort: 5347
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: udp
+          FromPort: 10000
+          ToPort: 10000
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 5269
+          ToPort: 5269
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 4443
+          ToPort: 4443
+          CidrIp: '0.0.0.0/0'
+               - IpProtocol: tcp
+          FromPort: 5281
+          ToPort: 5281
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 5280
+          ToPort: 5280
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: '0.0.0.0/0'
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: '0.0.0.0/0'
+  
+  RDSSubnetGroup:
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupName: 'wp-rds-subnet-group'
+      DBSubnetGroupDescription: 'RDS Subnet Group for WordPress'
+      SubnetIds:
+        - !Ref SubnetPrivate1
+        - !Ref SubnetPrivate2
+  
+  SecurityGroupRDS:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupName: 'RDS-MySQL'
+      GroupDescription: 'SG para RDS MySQL'
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: '0.0.0.0/0'
+  
+  RDSInstance:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      DBInstanceIdentifier: 'wordpress-db'
+      DBInstanceClass: 'db.t3.medium'
+      Engine: 'mysql'
+      AllocatedStorage: 20
+      StorageType: 'gp2'
+      MasterUsername: !Ref DB_USERNAME
+      MasterUserPassword: !Ref DB_PASSWORD
+      DBSubnetGroupName: !Ref RDSSubnetGroup
+      VPCSecurityGroups:
+        - !Ref SecurityGroupRDS
+      BackupRetentionPeriod: 7
+      PubliclyAccessible: false
+      AvailabilityZone: 'us-east-1b'
+      MultiAZ: false

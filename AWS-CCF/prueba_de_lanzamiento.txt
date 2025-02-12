@@ -1,0 +1,1 @@
+aws cloudformation create-stack --stack-name laboratorio-stack --template-body file://VPC_Y_SG.yaml --parameters ParameterKey=NombreAlumno,ParameterValue=juan ParameterKey=DBName,ParameterValue=wordpress ParameterKey=DBUsername,ParameterValue=admin ParameterKey=DBPassword,ParameterValue=Admin123
